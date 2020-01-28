@@ -14,7 +14,8 @@ class Calculator extends React.Component {
             currentValue: "", //Can't use display to store current value, it updates async
             storedValue: "",
             formulaToEval: "",
-            clearDisplay: false
+            clearDisplay: false,
+           // contAfterSolve: true
 
         }
 
@@ -22,7 +23,8 @@ class Calculator extends React.Component {
         this.handleOperation = this.handleOperation.bind(this);
         this.handleClear = this.handleClear.bind(this);
         this.updateDisplay = this.updateDisplay.bind(this);
-        this.handleSolve = this.handleSolve.bind(this)
+        this.handleSolve = this.handleSolve.bind(this);
+        this.updateCurrentValue = this.updateCurrentValue.bind(this);
 
     }
 
@@ -32,6 +34,16 @@ class Calculator extends React.Component {
      * @param {*} event 
      */
     handleNumberPressed(event) {
+        if(typeof(this.state.currentValue) === typeof(0)){
+        //     this.setState({
+        //         currentValue: ""
+        //     }, () => {
+
+        //     })
+        // }
+        this.state.currentValue = ""; //<<<<<<------------ REPLACE WITH A LIFECYCLE METHOD OR SOMETHING
+        //                                                 NOT AN APPROPRIATE WAY TO CHANGE STATE
+        }
         let value = event.target.value;
         let numArr = this.state.currentValue.split("");
 
@@ -64,17 +76,26 @@ class Calculator extends React.Component {
     }
 
 
+    updateCurrentValue(value){
+        this.setState({
+            currentValue: ""
+        })
+    }
+
+
     handleOperation(event) {
         let op = event.target.value;
         let formArr = this.state.formulaToEval.split("")
 
         //Starts the formula
-        if (formArr.length < 1 && op !== "-") {
+        if (formArr.length < 1 && op !== "-"
+            ) {
             formArr[0] = this.state.currentValue;
             formArr.push(op);
 
         } else { //pushes on the current value if chaining commands
             formArr.push(this.state.currentValue);
+            formArr.push(op)
         }
         op = formArr.join('')//reseting to string
         log(op +" op")
@@ -119,7 +140,13 @@ class Calculator extends React.Component {
         let solution = eval(equation)
 
         this.setState({
-           display: solution
+            display: solution,
+            currentValue: solution,
+            storedValue: "",
+            formulaToEval: "",
+            clearDisplay: true,
+//          contAfterSolve: false
+
         })
 
     }
