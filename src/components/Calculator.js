@@ -1,6 +1,7 @@
 import React from 'react';
-import NumberButton from './NumberButton'
-import Display from './Display'
+import NumberButton from './InputButton';
+import Display from './Display';
+import FormulaDisplay from './FormulaDisplay';
 import '../index.css';
 
 
@@ -18,11 +19,9 @@ class Calculator extends React.Component {
         this.getLastInput = this.getLastInput.bind(this);
         this.handleNumberPressed = this.handleNumberPressed.bind(this);
         this.updateDisplay = this.updateDisplay.bind(this);
-
         this.handleOperation = this.handleOperation.bind(this);
         this.handleClear = this.handleClear.bind(this);
         this.handleSolve = this.handleSolve.bind(this);
-
         this.checkDuplicateDecimals = this.checkDuplicateDecimals.bind(this)
     }
 
@@ -37,7 +36,7 @@ class Calculator extends React.Component {
 
         let value = event.target.value;
         let formArr = this.state.formula
-        if(value === "." && this.checkDuplicateDecimals() === true){
+        if (value === "." && this.checkDuplicateDecimals() === true) {
             return;
         }
         // eslint-disable-next-line 
@@ -94,9 +93,9 @@ class Calculator extends React.Component {
     checkDuplicateDecimals() {
         let arr = this.currentInput.split('');
         for (let i = 0; i < arr.length; i++) {
-            if(arr[i] === "."){
+            if (arr[i] === ".") {
                 return true;
-            } 
+            }
         }
         return false;
 
@@ -115,8 +114,8 @@ class Calculator extends React.Component {
             array.push(value);
             this.currentInput = array.join('')
             // eslint-disable-next-line
-            if(/\-$/g.test(this.currentInput)){
-                this.currentInput = array[array.length -2] + array[array.length - 1] + "";
+            if (/\-$/g.test(this.currentInput)) {
+                this.currentInput = array[array.length - 2] + array[array.length - 1] + "";
             } else {
                 this.currentInput = value;
             }
@@ -150,38 +149,42 @@ class Calculator extends React.Component {
 
     render() {
         return (
-            <div className="calculator">
-                <Display id="display" value={this.state.display} />
+            <div className="container">
 
-                <NumberButton id="one" value="1" onClick={this.handleNumberPressed} />
-                <NumberButton id="two" value="2" onClick={this.handleNumberPressed} />
-                <NumberButton id="three" value="3" onClick={this.handleNumberPressed} />
-
-
-                <NumberButton id="four" value="4" onClick={this.handleNumberPressed} />
-                <NumberButton id="five" value="5" onClick={this.handleNumberPressed} />
-                <NumberButton id="six" value="6" onClick={this.handleNumberPressed} />
+                <div className="calculator">
+                    <FormulaDisplay id="formula-display" value={this.state.formula.join("") + this.currentInput} />
+                    <Display id="display" value={this.state.display} />
 
 
-                <NumberButton id="seven" value="7" onClick={this.handleNumberPressed} />
-                <NumberButton id="eight" value="8" onClick={this.handleNumberPressed} />
-                <NumberButton id="nine" value="9" onClick={this.handleNumberPressed} />
-
-                <NumberButton id="zero" value="0" onClick={this.handleNumberPressed} />
-
-                <NumberButton id="decimal" value="." onClick={this.handleNumberPressed} />
-
-                <NumberButton id="add" value="+" onClick={this.handleOperation} />
-                <NumberButton id="subtract" value="-" onClick={this.handleOperation} />
-                <NumberButton id="multiply" value="*" onClick={this.handleOperation} />
-                <NumberButton id="divide" value="/" onClick={this.handleOperation} />
-
-                <NumberButton id="clear" value="AC" onClick={this.handleClear} />
-
-                <NumberButton id="equals" value="=" onClick={this.handleSolve} />
+                    <NumberButton id="one" value="1" onClick={this.handleNumberPressed} />
+                    <NumberButton id="two" value="2" onClick={this.handleNumberPressed} />
+                    <NumberButton id="three" value="3" onClick={this.handleNumberPressed} />
 
 
+                    <NumberButton id="four" value="4" onClick={this.handleNumberPressed} />
+                    <NumberButton id="five" value="5" onClick={this.handleNumberPressed} />
+                    <NumberButton id="six" value="6" onClick={this.handleNumberPressed} />
 
+
+                    <NumberButton id="seven" value="7" onClick={this.handleNumberPressed} />
+                    <NumberButton id="eight" value="8" onClick={this.handleNumberPressed} />
+                    <NumberButton id="nine" value="9" onClick={this.handleNumberPressed} />
+
+                    <NumberButton id="zero" value="0" onClick={this.handleNumberPressed} />
+
+                    <NumberButton id="decimal" value="." onClick={this.handleNumberPressed} />
+
+                    <NumberButton id="add" value="+" onClick={this.handleOperation} />
+                    <NumberButton id="subtract" value="-" onClick={this.handleOperation} />
+                    <NumberButton id="multiply" value="*" onClick={this.handleOperation} />
+                    <NumberButton id="divide" value="/" onClick={this.handleOperation} />
+
+                    <NumberButton id="clear" value="AC" onClick={this.handleClear} />
+
+                    <NumberButton id="equals" value="=" onClick={this.handleSolve} />
+
+
+                </div>
             </div>
         )
     }
