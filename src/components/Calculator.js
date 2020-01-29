@@ -1,67 +1,83 @@
 import React from 'react';
 import NumberButton from './NumberButton'
 import Display from './Display'
-import '../index.css'
-const log = console.log;
+import '../index.css';
 
 
 class Calculator extends React.Component {
     constructor(props) {
-        super(props)
+        super(props);
+        this.currentInput = "";
 
         this.state = {
             display: "0",
-            currentValue: "", //Can't use display to store current value, it updates async
-            storedValue: "",
-            formulaToEval: "",
-            clearDisplay: false,
-           // contAfterSolve: true
-
+            formula: []
         }
 
+
+        this.getLastInput = this.getLastInput.bind(this);
         this.handleNumberPressed = this.handleNumberPressed.bind(this);
+        this.updateDisplay = this.updateDisplay.bind(this);
+
         this.handleOperation = this.handleOperation.bind(this);
         this.handleClear = this.handleClear.bind(this);
-        this.updateDisplay = this.updateDisplay.bind(this);
         this.handleSolve = this.handleSolve.bind(this);
-        this.updateCurrentValue = this.updateCurrentValue.bind(this);
 
+        this.checkDuplicateDecimals = this.checkDuplicateDecimals.bind(this)
     }
 
-    /**
-     * This method uses an array to "build" a number,
-     * then stores it as the currentValue
-     * @param {*} event 
-     */
+    getLastInput() {
+        if (this.state.formula.length < 1) {
+            return "empty"
+        }
+        return (this.state.formula[this.state.formula.length - 1])
+    }
+
     handleNumberPressed(event) {
-        if(typeof(this.state.currentValue) === typeof(0)){
-        //     this.setState({
-        //         currentValue: ""
-        //     }, () => {
 
-        //     })
-        // }
-        this.state.currentValue = ""; //<<<<<<------------ REPLACE WITH A LIFECYCLE METHOD OR SOMETHING
-        //                                                 NOT AN APPROPRIATE WAY TO CHANGE STATE
-        }
         let value = event.target.value;
-        let numArr = this.state.currentValue.split("");
-
-        //Uses regex to prevent number from starting with zero
-        if (/^0+/g.test(this.state.currentValue)) {
-            log("started with zero")
-            numArr.shift();
+        let formArr = this.state.formula
+        if(value === "." && this.checkDuplicateDecimals() === true){
+            return;
+        }
+        // eslint-disable-next-line 
+        if (/[\+\-\*\/]/g.test(this.currentInput) === true) {
+            formArr.push(this.currentInput);
+            this.currentInput = "";
+            this.setState({
+                formula: formArr
+            })
         }
 
-        numArr.push(value);
-        value = numArr.join("")
-        this.setState({
-            currentValue: value
-        }, () => {
-            this.updateDisplay(this.state.currentValue)
-        })
+        let number = this.currentInput.split("");
+        number.push(value);
 
+        //Will remove any unnecessary zeros
+        if (/^0+/g.test(this.currentInput)) {
+            number.shift();
+        }
+
+
+
+        this.currentInput = number.join('');
+        this.setState({
+            display: this.currentInput
+        })
+        // Use to test if number or operation
+        // if (/[\+\-\*\/]/g.test(this.currentInput) === true) {
+
+        // }
+
+        //test if last input was an operation
+        // if(/+\-*\//g.test(this.getLastInput) === true){
+
+        //     number.push(value);
+
+        // } else if(/[\d]/g.test(this.getLastInput) === true){
+
+        // }
     }
+
 
     /**
      * Made this separate method in order to force the display to update
@@ -75,83 +91,62 @@ class Calculator extends React.Component {
 
     }
 
+    checkDuplicateDecimals() {
+        let arr = this.currentInput.split('');
+        for (let i = 0; i < arr.length; i++) {
+            if(arr[i] === "."){
+                return true;
+            } 
+        }
+        return false;
 
-    updateCurrentValue(value){
+
+    }
+
+    handleOperation(event) {
+        let value = event.target.value;
+        let formArr = this.state.formula;
+
+        if (Number.parseInt(this.currentInput)) {
+            formArr.push(this.currentInput);
+            this.currentInput = value;
+        } else {
+            let array = this.currentInput.split('');
+            array.push(value);
+            this.currentInput = array.join('')
+            // eslint-disable-next-line
+            if(/\-$/g.test(this.currentInput)){
+                this.currentInput = array[array.length -2] + array[array.length - 1] + "";
+            } else {
+                this.currentInput = value;
+            }
+        }
         this.setState({
-            currentValue: ""
+            formula: formArr
         })
     }
 
+    handleSolve() {
 
-    handleOperation(event) {
-        let op = event.target.value;
-        let formArr = this.state.formulaToEval.split("")
+        let solution = this.state.formula;
+        solution.push(this.currentInput);
+        // eslint-disable-next-line
+        solution = eval(solution.join(''))
 
-        //Starts the formula
-        if (formArr.length < 1 && op !== "-"
-            ) {
-            formArr[0] = this.state.currentValue;
-            formArr.push(op);
-
-        } else { //pushes on the current value if chaining commands
-            formArr.push(this.state.currentValue);
-            formArr.push(op)
-        }
-        op = formArr.join('')//reseting to string
-        log(op +" op")
         this.setState({
-            formulaToEval: op,
-            clearDisplay: true
+            display: solution.toString(),
+            formula: []
         })
-        this.setState({
-            currentValue: ""
-        })
-
-
+        this.currentInput = solution.toString();
     }
 
     handleClear() {
         this.setState({
             display: "0",
-            currentValue: "", //Can't use display to store current value, it updates async
-            storedValue: "",
-            formulaToEval: "",
-            clearDisplay: false
+            formula: []
         })
+        this.currentInput = "";
     }
-
-    handleSolve(event) {
-        let equation = this.state.formulaToEval;
-        equation = equation.split('');
-        equation.push(this.state.currentValue);
-        log(equation)
-
-        if(/[+\-*/]/g.test(equation[equation.length-1]) == true){
-            equation = equation.splice(0, equation.length-2)
-            log("ran regex")
-        } else if(this.state.currentValue === "" && /[+\-*/]/g.test(equation[equation.length-2]) == true){
-            equation = equation.splice(0, equation.length - 3)
-            log("ran empty current value and regex")
-            
-        }
-
-        log(equation + " after regeex")
-        equation = equation.join('');
-        let solution = eval(equation)
-
-        this.setState({
-            display: solution,
-            currentValue: solution,
-            storedValue: "",
-            formulaToEval: "",
-            clearDisplay: true,
-//          contAfterSolve: false
-
-        })
-
-    }
-
-
 
     render() {
         return (

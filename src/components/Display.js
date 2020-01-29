@@ -3,9 +3,9 @@ import React from 'react';
 
 const Display = (props) => {
 
-    return(
+    return (
         <div id={props.id}>
-        {props.value}
+            {props.value}
 
         </div>
     )
